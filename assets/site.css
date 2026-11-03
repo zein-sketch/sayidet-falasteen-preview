@@ -456,3 +456,7 @@ p{margin:0 0 1em}
   .appeal-ctas{flex-direction:column;align-items:stretch}
   .appeal-ctas .btn{justify-content:space-between}
 }
+@media (max-width:720px){
+  .story .chip{top:auto;bottom:6px}
+  .pillar .chip{top:auto;bottom:6px}
+}
