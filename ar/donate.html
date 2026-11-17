@@ -57,11 +57,27 @@
 <section class="support"><div class="wrap"><div><h2>الشراكات والمساهمات الكبرى</h2></div><p>نرحّب بالتواصل مع الأفراد والمؤسسات والشركات المهتمة بمساهمات أكبر أو شراكات لدعم البرامج، بما فيها مدارس غزة للغد. ويمكن مشاركة موازنات البرامج وفرص الرعاية التفصيلية عند الطلب.</p><div class="ctas"><a class="btn btn-ivory" href="/ar/contact?type=partnership">ناقش فرصة شراكة <svg viewBox="0 0 16 10" aria-hidden="true" focusable="false"><path d="M0 5h14M10 1l4 4-4 4" fill="none" stroke="currentColor" stroke-width="1.4"/></svg></a></div></div></section>
 </main><script>
 (function(){
+  /* Stripe Payment Links. Leave empty until the live account is approved; then add one link per amount. */
+  var SF_PAY={};
   var M={"req": "يرجى تعبئة هذا الحقل.", "email": "يرجى إدخال بريد إلكتروني صحيح.", "consent": "يرجى تأكيد موافقتكم على سياسة الخصوصية.", "amount": "يرجى اختيار مبلغ أو إدخاله.", "fail": "عذرًا، تعذّر إرسال رسالتكم. يرجى المحاولة مرة أخرى بعد قليل.", "sending": "جارٍ الإرسال…"};
+  var payOn=document.querySelector('.dform')&&Object.keys(SF_PAY).length>0;
+  if(payOn){var pn=document.querySelector('.dform .prenote'),pb=document.querySelector('.dform button[type=submit]');
+    if(pn)pn.textContent='ستكملون تبرعكم على صفحة الدفع الآمنة من Stripe. لا تمرّ بيانات بطاقتكم عبر هذا الموقع.';
+    if(pb)pb.textContent='المتابعة إلى الدفع الآمن';
+    var sj=document.querySelector('.dform input[name=_subject]');if(sj)sj.value='Website: card donation started';}
   var q=new URLSearchParams(location.search);
   var a=document.getElementById('f-area'); if(a&&q.get('area')){a.value=q.get('area')}
   var ty=document.getElementById('f-type'); if(ty&&q.get('type')){ty.value=q.get('type')}
   document.querySelectorAll('.dform input[name=amount]').forEach(function(r){r.addEventListener('change',function(){var o=document.querySelector('.other-amt');o.hidden=r.value!=='other'||!r.checked;if(!o.hidden)document.getElementById('f-other').focus()})});
+  function goPay(f){
+    var r=f.querySelector('input[name=amount]:checked'),key=r?r.value:'other',url=SF_PAY[key]||SF_PAY.other;
+    if(!url){location.href=SF_PAY[Object.keys(SF_PAY)[0]];return}
+    var p=new URLSearchParams(),em=f.querySelector('[name=email]'),ar=f.querySelector('[name=area]');
+    if(em&&em.value.trim())p.set('prefilled_email',em.value.trim());
+    if(ar&&ar.value)p.set('client_reference_id',ar.value.replace(/[^A-Za-z0-9_-]/g,''));
+    p.set('locale',document.documentElement.lang==='ar'?'ar':'en');
+    location.href=url+(url.indexOf('?')<0?'?':'&')+p.toString();
+  }
   function setErr(el,id,msg){var e=document.getElementById(id);if(!e)return;e.textContent=msg||'';e.hidden=!msg;if(el){el.setAttribute('aria-invalid',msg?'true':'false')}}
   document.querySelectorAll('form.fform').forEach(function(f){
     f.addEventListener('submit',function(ev){
@@ -83,8 +99,8 @@
       btn.disabled=true;btn.textContent=M.sending;if(fe)fe.hidden=true;
       fetch(f.action,{method:'POST',body:new URLSearchParams(fd)})
         .then(function(r){return r.json().then(function(j){if(!r.ok||String(j.success)!=='true')throw j;return j})})
-        .then(function(){var d=f.nextElementSibling;f.hidden=true;d.hidden=false;d.focus();d.scrollIntoView({block:'center'})})
-        .catch(function(){btn.disabled=false;btn.innerHTML=lbl;if(fe){fe.textContent=M.fail;fe.hidden=false}});
+        .then(function(){if(payOn&&f.classList.contains('dform')){goPay(f);return}var d=f.nextElementSibling;f.hidden=true;d.hidden=false;d.focus();d.scrollIntoView({block:'center'})})
+        .catch(function(){if(payOn&&f.classList.contains('dform')){goPay(f);return}btn.disabled=false;btn.innerHTML=lbl;if(fe){fe.textContent=M.fail;fe.hidden=false}});
     });
     f.addEventListener('input',function(e){var el=e.target;if(el.getAttribute('aria-invalid')==='true')setErr(el,el.id+'-e','')});
   });
