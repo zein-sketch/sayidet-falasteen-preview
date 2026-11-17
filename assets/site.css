@@ -724,3 +724,20 @@ blockquote p::after{content:"”";color:var(--olive)}
 .sinset{margin:24px 0 0;max-width:340px}
 .sinset img{display:block;width:100%;aspect-ratio:3/2;object-fit:cover;object-position:50% 40%}
 .sinset figcaption{font-size:13px;line-height:1.5;color:var(--ink-3);margin-top:8px}
+
+/* Motion, 17 Nov: subtle, CSS only, switched off for reduced motion */
+@keyframes sf-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+@keyframes sf-settle{from{opacity:.001;transform:scale(1.045)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:no-preference){
+.hero-copy>*{animation:sf-rise .8s cubic-bezier(.2,.7,.2,1) both}
+.hero-copy>:nth-child(2){animation-delay:.08s}
+.hero-copy>:nth-child(3){animation-delay:.16s}
+.hero-copy>:nth-child(4){animation-delay:.24s}
+.hero-copy>:nth-child(5){animation-delay:.32s}
+.hero-fig img{animation:sf-settle 1.4s cubic-bezier(.2,.7,.2,1) both}
+.btn{transition:background .2s,color .2s,border-color .2s,transform .2s}
+.btn:hover{transform:translateY(-1px)}
+@supports (animation-timeline:view()){
+main .sec .eyebrow,main .sec h2,main .sec .lead,.pillar,.story,.srow,.stag,.founder-grid figure{animation:sf-rise linear both;animation-timeline:view();animation-range:entry 0px entry 160px}
+}
+}
